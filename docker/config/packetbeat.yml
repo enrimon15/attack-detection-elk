@@ -1,0 +1,32 @@
+packetbeat.interfaces.device: any
+
+packetbeat.flows:
+  timeout: 30s
+  period: 10s
+
+packetbeat.protocols:
+- type: http
+  ports: [80, 8080, 8000, 5000, 8002]
+- type: https
+  ports: [443]
+- type: dns
+  ports: [53]
+- type: mysql
+  ports: [3306]
+- type: ssh
+  ports: [22]
+- type: telnet
+  ports: [23] 
+- type: ftp
+  ports: [21]    
+
+packetbeat.metrics.enabled: true
+
+output.kafka:
+  hosts: ["kafka:9092"]
+  topic: "packetbeat-topic"
+  #compression: gzip
+  max_retries: 5
+
+setup.kibana:
+  host: "kibana:5601"

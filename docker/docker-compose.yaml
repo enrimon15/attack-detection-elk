@@ -3,10 +3,10 @@ version: '3'
 services:
   # start mongo services
   mongo_db:
-    hostname: mongo_db
+    #hostname: mongo_db
     image: mongo:${MONGO_VERSION}
     container_name: mongo_db
-    restart: always
+    restart: unless-stopped
     environment:
       MONGO_INITDB_DATABASE: monitor-db
       MONGO_INITDB_ROOT_USERNAME: admin
@@ -14,44 +14,65 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - mongo-db_data-container:/data/db 
-      - ${PWD}/config/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    networks: 
+      - mongo-db_data-vol:/data/db
+      # creating user
+      - ${PWD:-.}/config/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
       - dmz-network 
   
   mongo-express:
-    container_name: mongo-express
-    restart: always
     image: mongo-express:${MONGO_EXPRESS_VERSION}
+    container_name: mongo-express
+    restart: unless-stopped
     depends_on:
       - mongo_db 
-    networks: 
-      - dmz-network
     environment:
       - ME_CONFIG_MONGODB_SERVER=mongo_db
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=monitor-user
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=monitor-user
-      - ME_CONFIG_BASICAUTH_USERNAME=admin
-      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=admin
+      - ME_CONFIG_BASICAUTH_USERNAME=monitor-user
+      - ME_CONFIG_BASICAUTH_PASSWORD=monitor-password
     ports:
       - '8081:8081'
+    networks: 
+      - dmz-network  
+
+  # start packetbeat monitoring service
+  packetbeat:
+    image: docker.elastic.co/beats/packetbeat:${PACKETBEAT_VERSION}
+    container_name: packetbeat
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ${PWD:-.}/config/packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+      - packetbeat-vol:/usr/share/packetbeat/data
+      #- /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+      - kafka
+    networks:
+      - dmz-network
+    # possibile eliminare
+    cap_add:
+      - NET_ADMIN
+    command: ["--strict.perms=false"]    
 
   # start kafka services
   zookeeper:
     image: 'bitnami/zookeeper:${ZOOKEPEER_VERSION}'
-    ports:
-      - '2181:2181'
     container_name: 'zookeeper'
+    restart: unless-stopped
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - '2181:2181'
     networks:
       - dmz-network
 
   kafka:
     image: 'bitnami/kafka:${KAFKA_VERSION}'
     container_name: 'kafka'
-    ports:
-      - '9092:9092'
+    restart: unless-stopped
     environment:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_LISTENERS=INTERNAL://:29092,EXTERNAL://:9092
@@ -59,23 +80,63 @@ services:
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CREATE_TOPICS=packetbeat-topic:1:1
-      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      #- KAFKA_CREATE_TOPICS=packetbeat-topic:1:1
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_LOG_DIRS=/tmp/kafka_mounts/logs
+    ports:
+      - '9092:9092'  
+    volumes:
+      - ${PWD:-.}/config/kafka/persistence:/bitnami/kafka
+      - ${PWD:-.}/config/kafka/log:/tmp/kafka_mounts/logs
     depends_on:
       - zookeeper
     networks:
       - dmz-network
 
+  # go to http://localhost:8095
+  kafka-ui:
+    image: 'provectuslabs/kafka-ui'
+    hostname: kafka-ui
+    container_name: 'kafka-ui'
+    restart: unless-stopped
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "local"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"
+      KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper:2181"
+      KAFKA_CLUSTERS_0_JMXPORT: 9997
+    ports:
+      - "8095:8080"  
+    depends_on:
+      - kafka
+    networks:
+      - dmz-network    
+
   # start elk services
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION}
+    container_name: logstash
+    restart: unless-stopped
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    ports:
+      - "5000:5000"
+    volumes:
+      - ${PWD:-.}/config/logstash.conf:/etc/logstash/conf.d/logstash.conf
+    depends_on:
+      - zookeeper
+      - kafka
+    networks:
+      - dmz-network
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
     container_name: elasticsearch
+    restart: unless-stopped
     environment:
       - node.name=elasticsearch
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ulimits:
       memlock:
         soft: -1
@@ -85,52 +146,32 @@ services:
     ports:
       - "9300:9300"
       - "9200:9200"
+    depends_on:
+      - logstash
     networks:
       - dmz-network
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
     container_name: kibana
+    restart: unless-stopped
     environment:
       ELASTICSEARCH_URL: "http://elasticsearch:9300"
     ports:
       - "5601:5601"
+    depends_on:
+      - elasticsearch
     networks:
-      - dmz-network
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION}
-    container_name: logstash
-    command: logstash -f /etc/logstash/conf.d/logstash.conf
-    volumes:
-      - ${PWD}/config/logstash.conf:/etc/logstash/conf.d/logstash.conf
-    ports:
-      - "5000:5000"
-    networks:
-      - dmz-network
-
-  packetbeat:
-    image: docker.elastic.co/beats/packetbeat:${PACKETBEAT_VERSION}
-    container_name: packetbeat
-    user: root
-    networks:
-      - dmz-network
-    volumes:
-      - ${PWD}/packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
-      - packetbeat-vol:/usr/share/packetbeat/data
-      #- /var/run/docker.sock:/var/run/docker.sock # vedere cosa è
-    # vedere cosa è cap
-    #cap_add:
-    #  - NET_RAW
-    #  - NET_ADMIN
-    command: ["--strict.perms=false"] 
+      - dmz-network 
 
 
   # To add java container   
 
 volumes:
-  mongo-db_data-container:
+  mongo-db_data-vol:
+    driver: local
   packetbeat-vol:
+    driver: local
   esdata-vol:
     driver: local
 
