@@ -20,13 +20,20 @@ packetbeat.protocols:
 - type: ftp
   ports: [21]    
 
-packetbeat.metrics.enabled: true
+#packetbeat.metrics.enabled: true
 
 output.kafka:
   hosts: ["kafka:9092"]
   topic: "packetbeat-topic"
-  #compression: gzip
+  version: 2.6.0
+
+  partition.round_robin:
+    reachable_only: false
+
   max_retries: 5
 
-setup.kibana:
-  host: "kibana:5601"
+  bulk_max_size: 10240
+  max_message_bytes: 100000000 # 100 mb
+
+#setup.kibana:
+#  host: "kibana:5601"

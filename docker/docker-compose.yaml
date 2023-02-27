@@ -52,10 +52,10 @@ services:
       - kafka
     networks:
       - dmz-network
-    # possibile eliminare
     cap_add:
       - NET_ADMIN
-    command: ["--strict.perms=false"]    
+      - NET_RAW # da capire cosa è
+    command: ["-e", "-v", "--strict.perms=false"]    
 
   # start kafka services
   zookeeper:
@@ -82,16 +82,17 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       #- KAFKA_CREATE_TOPICS=packetbeat-topic:1:1
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-      - KAFKA_CFG_LOG_DIRS=/tmp/kafka_mounts/logs
+      #- KAFKA_CFG_LOG_DIRS=/tmp/kafka_mounts/logs
     ports:
       - '9092:9092'  
-    volumes:
-      - ${PWD:-.}/config/kafka/persistence:/bitnami/kafka
-      - ${PWD:-.}/config/kafka/log:/tmp/kafka_mounts/logs
+    #volumes:
+      #- ${PWD:-.}/config/kafka/persistence:/bitnami/kafka
+      #- ${PWD:-.}/config/kafka/log:/tmp/kafka_mounts/logs
     depends_on:
       - zookeeper
     networks:
       - dmz-network
+
 
   # go to http://localhost:8095
   kafka-ui:
