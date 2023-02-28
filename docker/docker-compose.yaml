@@ -46,7 +46,10 @@ services:
     volumes:
       - ${PWD:-.}/config/packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
       - packetbeat-vol:/usr/share/packetbeat/data
-      #- /var/run/docker.sock:/var/run/docker.sock
+       - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/hostfs/proc:ro
+      - /sys:/hostfs/sys:ro
+      - /:/hostfs:ro
     depends_on:
       - zookeeper
       - kafka
@@ -82,12 +85,11 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       #- KAFKA_CREATE_TOPICS=packetbeat-topic:1:1
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-      #- KAFKA_CFG_LOG_DIRS=/tmp/kafka_mounts/logs
+      - KAFKA_CFG_MAX_REQUEST_SIZE=100000000
     ports:
       - '9092:9092'  
     #volumes:
       #- ${PWD:-.}/config/kafka/persistence:/bitnami/kafka
-      #- ${PWD:-.}/config/kafka/log:/tmp/kafka_mounts/logs
     depends_on:
       - zookeeper
     networks:

@@ -2,7 +2,7 @@ packetbeat.interfaces.device: any
 
 packetbeat.flows:
   timeout: 30s
-  period: 10s
+  period: 20s
 
 packetbeat.protocols:
 - type: http
@@ -16,14 +16,14 @@ packetbeat.protocols:
 - type: ssh
   ports: [22]
 - type: telnet
-  ports: [23] 
+  ports: [23]
 - type: ftp
-  ports: [21]    
+  ports: [21]
 
 #packetbeat.metrics.enabled: true
 
 output.kafka:
-  hosts: ["kafka:9092"]
+  hosts: ["kafka:29092"]
   topic: "packetbeat-topic"
   version: 2.6.0
 
@@ -32,8 +32,9 @@ output.kafka:
 
   max_retries: 5
 
-  bulk_max_size: 10240
+  bulk_max_size: 4096
   max_message_bytes: 100000000 # 100 mb
 
-#setup.kibana:
-#  host: "kibana:5601"
+#setup.dashboards.enabled: true
+setup.kibana:
+  host: "kibana:5601"
