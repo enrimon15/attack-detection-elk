@@ -46,7 +46,7 @@ services:
     volumes:
       - ${PWD:-.}/config/packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
       - packetbeat-vol:/usr/share/packetbeat/data
-       - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/hostfs/proc:ro
       - /sys:/hostfs/sys:ro
       - /:/hostfs:ro
@@ -58,7 +58,8 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW # da capire cosa è
-    command: ["-e", "-v", "--strict.perms=false"]    
+    #command: ["-e", "-v", "--strict.perms=false"]    
+    command: ["-e", "--strict.perms=false"]    
 
   # start kafka services
   zookeeper:

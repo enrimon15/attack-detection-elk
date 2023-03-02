@@ -5,20 +5,41 @@ packetbeat.flows:
   period: 20s
 
 packetbeat.protocols:
-- type: http
-  ports: [80, 8080, 8000, 5000, 8002]
-- type: https
-  ports: [443]
+- type: icmp
+  enabled: true
+
+- type: dhcpv4
+  ports: [67, 68]
+
 - type: dns
   ports: [53]
+
+- type: http
+  ports: [80, 8080, 8000, 5000, 8002]
+
+- type: amqp
+  ports: [5672]
+
+- type: cassandra
+  ports: [9042]
+
+- type: memcache
+  ports: [11211]
+
 - type: mysql
-  ports: [3306]
-- type: ssh
-  ports: [22]
-- type: telnet
-  ports: [23]
-- type: ftp
-  ports: [21]
+  ports: [3306,3307]
+
+- type: redis
+  ports: [6379]
+
+- type: pgsql
+  ports: [5432]
+
+- type: thrift
+  ports: [9090]
+
+- type: tls
+  ports: [443, 993, 995, 5223, 8443, 8883, 9243]
 
 #packetbeat.metrics.enabled: true
 
@@ -35,6 +56,8 @@ output.kafka:
   bulk_max_size: 4096
   max_message_bytes: 100000000 # 100 mb
 
-#setup.dashboards.enabled: true
+setup.dashboards.enabled: true
+setup.dashboards.retry.enabled: true
+setup.dashboards.retry.maximum: 0
 setup.kibana:
   host: "kibana:5601"
