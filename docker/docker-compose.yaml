@@ -57,7 +57,7 @@ services:
       - dmz-network
     cap_add:
       - NET_ADMIN
-      - NET_RAW # da capire cosa è
+      - NET_RAW
     #command: ["-e", "-v", "--strict.perms=false"]    
     command: ["-e", "--strict.perms=false"]    
 
@@ -84,7 +84,6 @@ services:
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
-      #- KAFKA_CREATE_TOPICS=packetbeat-topic:1:1
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_CFG_MAX_REQUEST_SIZE=100000000
     ports:
