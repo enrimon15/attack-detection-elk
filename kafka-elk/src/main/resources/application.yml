@@ -3,13 +3,14 @@ spring:
     name: kafka-elk
 
   # ========= MONGO DB =========== #
-  #data:
-  #  mongodb:
-  #    database: monitor-db
-  #    host: localhost
-  #    port: 27017
-  #    password: monitor-password
-  #    username: monitor-user
+  data:
+    mongodb:
+      database: monitor-db
+      host: localhost
+      port: 27017
+      password: monitor-password
+      username: monitor-user
+      packetbeat-collection: packetbeatMessage
 
   kafka:
     topic-name: packetbeat-topic
