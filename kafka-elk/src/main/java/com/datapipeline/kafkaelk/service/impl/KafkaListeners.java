@@ -29,7 +29,7 @@ class KafkaListeners {
         Object messageValue = record.value();
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> packetbeatData = mapper.convertValue(messageValue, new TypeReference<Map<String, Object>>(){});
-        //log.debug(messageMap.toString());
+        //log.debug(packetbeatData.toString());
         monitoringService.saveData(packetbeatData);
     }
 }

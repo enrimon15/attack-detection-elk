@@ -18,8 +18,8 @@ import java.util.Map;
 @EnableKafka
 class KafkaConfig {
 
-    @Value("${spring.kafka.topic-name}")
-    private String topicName;
+    /*@Value("${spring.kafka.topic-name}")
+    private String topicName;*/
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
