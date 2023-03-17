@@ -35,15 +35,17 @@ services:
       dmz:
         ipv4_address: 172.30.0.7    
 
-  dvwa-mts:
-    image: vulnerables/web-dvwa
-    restart: unless-stopped
-    container_name: dvwa-mts
+  vulnerable-mts:
+    image: tomcat:6
     ports:
-      - "80:80"
+      - "8080:8080"
+    volumes:
+      #- ./webapps:/usr/local/tomcat/webapps
+      - ${PWD:-.}/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+    command: ["catalina.sh", "run"] 
     networks:
       dmz:
-        ipv4_address: 172.30.0.6     
+        ipv4_address: 172.30.0.6
 
   packetbeat-mts:
     image: docker.elastic.co/beats/packetbeat:7.14.0

@@ -2,17 +2,15 @@ packetbeat.interfaces.device: any
 
 packetbeat.protocols:
 - type: http
-  ports: [80, 8080, 8000, 5000, 8002]
+  ports: [80, 8080, 8000, 5000, 8002, 8180]
 - type: dns
   ports: [53]
-- type: mysql
-  ports: [3306]  
 - type: icmp
   enabled: true
 
 packetbeat.flows:
   timeout: 30s
-  period: 10s
+  period: 5s
 
 packetbeat.modules:
 - module: system

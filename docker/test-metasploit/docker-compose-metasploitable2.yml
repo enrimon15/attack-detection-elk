@@ -35,15 +35,22 @@ services:
       dmz:
         ipv4_address: 172.30.0.7    
 
-  dvwa-mts:
-    image: vulnerables/web-dvwa
+  metasploitable-mts:
+    image: tleemcjr/metasploitable2
+    container_name: metasploitable-mts
     restart: unless-stopped
-    container_name: dvwa-mts
+    network_mode: bridge
     ports:
+      #- "22:22"
       - "80:80"
+      - "8180:8180"
+      #- "139:139"
+      #- "445:445"
+      #- "5432:5432"
+    command: tail -f /dev/null  
     networks:
       dmz:
-        ipv4_address: 172.30.0.6     
+        ipv4_address: 172.30.0.6
 
   packetbeat-mts:
     image: docker.elastic.co/beats/packetbeat:7.14.0
