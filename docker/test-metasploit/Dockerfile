@@ -24,6 +24,9 @@ RUN curl -L -O https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apach
 RUN mkdir /var/run/sshd && \
     echo 'root:root' | chpasswd && \
     sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# permissions configurantion packetbeat
+RUN chown root /etc/packetbeat/packetbeat.yml && chmod go-w /etc/packetbeat/packetbeat.yml
     
 
 COPY packetbeat.yml /etc/packetbeat/packetbeat.yml

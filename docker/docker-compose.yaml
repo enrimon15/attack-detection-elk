@@ -21,7 +21,7 @@ services:
       - "4444:4444"
     depends_on:
       - postgres-mts
-    entrypoint: /bin/sh -c "apk update && apk add openssh-client && tail -f /dev/null" 
+    entrypoint: /bin/sh -c "apk update && apk add openssh-client && chmod 777 /usr/src/metasploit-framework/scripts/ && tail -f /dev/null"
   
   postgres-mts:
     image: postgres
