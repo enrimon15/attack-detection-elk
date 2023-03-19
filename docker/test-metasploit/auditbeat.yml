@@ -1,0 +1,41 @@
+auditbeat.modules:
+- module: auditd
+  audit_rules: |
+    -w /usr/local/tomcat/webapps/ -k tomcat
+    -w /etc/passwd -p wa -k sshkey_persistence
+    -w /etc/ssh/sshd_config -p wa -k sshkey_persistence
+    -w /etc/ssh/ssh_host_* -p wa -k sshkey_persistence
+    -w /home/*/.ssh/authorized_keys -p wa -k sshkey_persistence
+    -w /root/.ssh/authorized_keys -p wa -k sshkey_persistence
+# - module: file_integrity
+#   paths:
+#     - /usr/local/tomcat/log/tomcat6/catalina.out
+#   exclude_files:
+#     - /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/log4j-*.jar$
+- module: system
+  datasets:
+    - file
+    - socket
+  audit_rules: |
+    -a always,exit -F arch=b64 -S execve -C uid!=euid -k sshkey_persistence
+    -a always,exit -F arch=b32 -S execve -C uid!=euid -k sshkey_persistence
+    -a always,exit -F arch=b64 -S connect -F a0=8080 -k tomcat
+    -a always,exit -F arch=b32 -S connect -F a0=8080 -k tomcat   
+  # datasets:
+  #   - socket
+  # state.period: 12h
+  # filters:
+  #   - term:
+  #       socket.type: stream
+  #       socket.direction: inbound
+  #       socket.port: 8080
+
+
+output.elasticsearch:
+  hosts: ["elasticsearch-mts:9200"]
+
+setup.dashboards.enabled: true
+setup.dashboards.retry.enabled: true
+setup.dashboards.retry.maximum: 0
+setup.kibana:
+  host: "kibana-mts:5601"      

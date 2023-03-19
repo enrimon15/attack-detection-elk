@@ -68,6 +68,7 @@ def execute_attack(targetPORT, targetIP)
     run_single("set STOP_ON_SUCCESS true")
     # esecuzione
     run_single("exploit")
+    run_single("exit")
 
 end
 

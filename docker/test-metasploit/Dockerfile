@@ -29,10 +29,6 @@ RUN mkdir /var/run/sshd && \
 COPY packetbeat.yml /etc/packetbeat/packetbeat.yml
 COPY tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 
-# RUN chown root /etc/packetbeat/packetbeat.yml && \
-#     chmod go-w /etc/packetbeat/packetbeat.yml && \
-#     setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' /usr/bin/packetbeat
-
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 

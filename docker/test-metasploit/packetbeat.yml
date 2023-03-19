@@ -2,9 +2,7 @@ packetbeat.interfaces.device: any
 
 packetbeat.protocols:
 - type: http
-  ports: [80, 8080, 8000, 5000, 8002, 8180]
-- type: dns
-  ports: [53]
+  ports: [8080]
 - type: icmp
   enabled: true
 

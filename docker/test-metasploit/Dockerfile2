@@ -1,24 +1,46 @@
-FROM tomcat:6
+FROM ubuntu:20.04
 
-# Install packetbeat
+# package required
 RUN apt-get update && \
-    apt-get install -y curl && \
-    curl -L -O https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.14.0-amd64.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        openjdk-8-jre \
+        openssh-server \
+        curl \
+        libcap2-bin \
+        && rm -rf /var/lib/apt/lists/*
+
+# packetbeat
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.14.0-amd64.deb && \
     dpkg -i packetbeat-7.14.0-amd64.deb && \
-    rm -f packetbeat-7.14.0-amd64.deb && \
-    apt-get purge -y --auto-remove curl && \
-    rm -rf /var/lib/apt/lists/*
+    rm -f packetbeat-7.14.0-amd64.deb
 
-# Copy users configuration files
-COPY ./tomcat-users.xml /usr/local/tomcat/conf/
+# auditbeat
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.14.0-amd64.deb && \
+    dpkg -i auditbeat-7.14.0-amd64.deb && \
+    rm -f auditbeat-7.14.0-amd64.deb    
 
-# Copy the packetbeat configuration file
-#COPY ./packetbeat.yml /etc/packetbeat/
+# Tomcat 6
+RUN curl -L -O https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apache-tomcat-6.0.53.tar.gz && \
+    tar xvzf apache-tomcat-6.0.53.tar.gz && \
+    rm -f apache-tomcat-6.0.53.tar.gz && \
+    mv apache-tomcat-6.0.53 /usr/local/tomcat && \
+    chmod +x /usr/local/tomcat/bin/*
+
+# ssh
+RUN mkdir /var/run/sshd && \
+    echo 'root:root' | chpasswd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+    
+
 COPY packetbeat.yml /etc/packetbeat/packetbeat.yml
-RUN chown root /etc/packetbeat/packetbeat.yml && \
-    chmod go-w /etc/packetbeat/packetbeat.yml && \
-    setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' /usr/bin/packetbeat
+COPY auditbeat.yml /etc/auditbeat/auditbeat.yml
+COPY tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 
-# Start packetbeat and catalina.sh in the foreground
-CMD /etc/init.d/packetbeat start -e --strict.perms=false && catalina.sh run
-#CMD service packetbeat start && /usr/local/tomcat/bin/catalina.sh run
+# RUN setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' /usr/bin/packetbeat
+
+ENV CATALINA_HOME /usr/local/tomcat
+ENV PATH $CATALINA_HOME/bin:$PATH
+
+EXPOSE 8080 22
+
+CMD service ssh start && catalina.sh run
