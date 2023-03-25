@@ -30,6 +30,11 @@ auditbeat.modules:
   #       socket.direction: inbound
   #       socket.port: 8080
 
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
 
 output.elasticsearch:
   hosts: ["elasticsearch-mts:9200"]

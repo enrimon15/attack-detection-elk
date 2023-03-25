@@ -42,9 +42,14 @@ services:
   vulnerable-mts:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-auditbeat
     container_name: vulnerable-mts
     restart: unless-stopped
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    user: root
+    pid: host
     networks:
       dmz:
         ipv4_address: 172.30.0.6
