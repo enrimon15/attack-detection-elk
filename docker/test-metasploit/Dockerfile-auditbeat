@@ -6,8 +6,6 @@ RUN apt-get update && \
         openjdk-8-jre \
         openssh-server \
         curl \
-        auditd \
-        libaudit-dev \
         libcap2-bin \
         && rm -rf /var/lib/apt/lists/*
 
@@ -22,7 +20,7 @@ RUN curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-
     rm -f auditbeat-7.14.0-amd64.deb
 
 # Add capabilities for auditbeat
-RUN setcap cap_audit_control,cap_chown,cap_dac_override,cap_dac_read_search,cap_fowner,cap_fsetid,cap_kill,cap_setgid,cap_setuid,cap_setpcap,cap_linux_immutable,cap_net_bind_service,cap_net_broadcast,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_ipc_owner,cap_sys_module,cap_sys_rawio,cap_sys_chroot,cap_sys_ptrace,cap_sys_pacct,cap_sys_admin,cap_sys_boot,cap_sys_nice,cap_sys_resource,cap_sys_time,cap_sys_tty_config,cap_mknod,cap_lease,cap_audit_write,cap_audit_control,cap_setfcap,cap_mac_override,cap_mac_admin,cap_syslog,cap_audit_read+ep /usr/share/auditbeat/bin/auditbeat    
+RUN setcap cap_audit_control,cap_audit_read+ep /usr/share/auditbeat/bin/auditbeat    
 
 # Tomcat 6
 RUN curl -L -O https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apache-tomcat-6.0.53.tar.gz && \

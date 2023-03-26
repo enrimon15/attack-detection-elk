@@ -1,26 +1,40 @@
 auditbeat.modules:
 - module: auditd
-  audit_rules: |
-    -w /usr/local/tomcat/webapps/ -k tomcat
-    -w /etc/passwd -p wa -k sshkey_persistence
-    -w /etc/ssh/sshd_config -p wa -k sshkey_persistence
-    -w /etc/ssh/ssh_host_* -p wa -k sshkey_persistence
-    -w /home/*/.ssh/authorized_keys -p wa -k sshkey_persistence
-    -w /root/.ssh/authorized_keys -p wa -k sshkey_persistence
+  enabled: false
+
+- module: file_integrity
+  paths:
+  - /etc/**
+  - /root/**
+  - /etc
+  - /root
+  - /root/.ssh/authorized_keys
+  - /home/*/.ssh/authorized_keys
+  scan_frequency: 10s
+  recursive: true
+  scan_at_start: true
+# - module: auditd
+#   audit_rules: |
+#     -w /usr/local/tomcat/webapps/ -k tomcat
+#     -w /etc/passwd -p wa -k sshkey_persistence
+#     -w /etc/ssh/sshd_config -p wa -k sshkey_persistence
+#     -w /etc/ssh/ssh_host_* -p wa -k sshkey_persistence
+#     -w /home/*/.ssh/authorized_keys -p wa -k sshkey_persistence
+#     -w /root/.ssh/authorized_keys -p wa -k sshkey_persistence
 # - module: file_integrity
 #   paths:
 #     - /usr/local/tomcat/log/tomcat6/catalina.out
 #   exclude_files:
 #     - /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/log4j-*.jar$
-- module: system
-  datasets:
-    - file
-    - socket
-  audit_rules: |
-    -a always,exit -F arch=b64 -S execve -C uid!=euid -k sshkey_persistence
-    -a always,exit -F arch=b32 -S execve -C uid!=euid -k sshkey_persistence
-    -a always,exit -F arch=b64 -S connect -F a0=8080 -k tomcat
-    -a always,exit -F arch=b32 -S connect -F a0=8080 -k tomcat   
+# - module: system
+#   datasets:
+#     - file
+#     - socket
+#   audit_rules: |
+#     -a always,exit -F arch=b64 -S execve -C uid!=euid -k sshkey_persistence
+#     -a always,exit -F arch=b32 -S execve -C uid!=euid -k sshkey_persistence
+#     -a always,exit -F arch=b64 -S connect -F a0=8080 -k tomcat
+#     -a always,exit -F arch=b32 -S connect -F a0=8080 -k tomcat   
   # datasets:
   #   - socket
   # state.period: 12h
@@ -35,8 +49,9 @@ processors:
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
 
-
+output.logstash.enabled: false
 output.elasticsearch:
+  enabled: true
   hosts: ["elasticsearch-mts:9200"]
 
 setup.dashboards.enabled: true
