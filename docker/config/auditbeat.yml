@@ -1,0 +1,26 @@
+auditbeat.modules:
+- module: auditd
+  enabled: false
+
+- module: file_integrity
+  paths:
+  - /root/**
+  - /root
+  - /root/.ssh/authorized_keys
+  scan_frequency: 10s
+  recursive: true
+  scan_at_start: true
+
+output.logstash.enabled: false
+
+output.kafka:
+  enabled: true
+  hosts: ["kafka:29092"]
+  topic: "auditbeat-topic"
+  max_retries: 5
+
+setup.dashboards.enabled: true
+setup.dashboards.retry.enabled: true
+setup.dashboards.retry.maximum: 0
+setup.kibana:
+  host: "kibana:5601"      

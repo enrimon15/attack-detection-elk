@@ -8,12 +8,21 @@ RUN apt-get update && \
         openjdk-8-jre \
         openssh-server \
         curl \
+        libcap2-bin \
         && rm -rf /var/lib/apt/lists/*
 
 # packetbeat
 RUN curl -L -O https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.14.0-amd64.deb && \
     dpkg -i packetbeat-7.14.0-amd64.deb && \
     rm -f packetbeat-7.14.0-amd64.deb
+
+# auditbeat
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.14.0-amd64.deb && \
+    dpkg -i auditbeat-7.14.0-amd64.deb && \
+    rm -f auditbeat-7.14.0-amd64.deb
+
+# Add capabilities for auditbeat
+RUN setcap cap_audit_control,cap_audit_read+ep /usr/share/auditbeat/bin/auditbeat
 
 # Tomcat 6
 RUN curl -L -O https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apache-tomcat-6.0.53.tar.gz && \
@@ -29,11 +38,12 @@ RUN mkdir /var/run/sshd && \
     
 
 COPY config/packetbeat.yml /etc/packetbeat/packetbeat.yml
+COPY config/auditbeat.yml /etc/auditbeat/auditbeat.yml
 COPY config/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 
-EXPOSE 8080 22
+EXPOSE 8080
 
 CMD service ssh start && catalina.sh run

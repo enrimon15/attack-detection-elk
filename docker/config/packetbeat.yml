@@ -5,26 +5,31 @@ packetbeat.flows:
   period: 10s
 
 packetbeat.protocols:
+- type: http
+  ports: [8080]
 - type: icmp
   enabled: true
 
-- type: http
-  ports: [8080]
-
 #packetbeat.metrics.enabled: true
+
+packetbeat.modules:
+- module: system
+  sysctl.module: net
+  period: 10s
+  interfaces.device: any
 
 output.kafka:
   hosts: ["kafka:29092"]
   topic: "packetbeat-topic"
-  version: 2.0.0
+  #version: 2.0.0
 
-  partition.round_robin:
-    reachable_only: false
+  #partition.round_robin:
+  #  reachable_only: false
 
   max_retries: 5
 
-  bulk_max_size: 4096
-  max_message_bytes: 100000000 # 100 mb
+  #bulk_max_size: 4096
+  #max_message_bytes: 100000000 # 100 mb
 
 setup.dashboards.enabled: true
 setup.dashboards.retry.enabled: true
