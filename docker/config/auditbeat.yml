@@ -19,8 +19,8 @@ output.kafka:
   topic: "auditbeat-topic"
   max_retries: 5
 
-setup.dashboards.enabled: true
-setup.dashboards.retry.enabled: true
-setup.dashboards.retry.maximum: 0
-setup.kibana:
-  host: "kibana:5601"      
+#setup.dashboards.enabled: true
+#setup.dashboards.retry.enabled: true
+#setup.dashboards.retry.maximum: 0
+#setup.kibana:
+#  host: "kibana:5601"      

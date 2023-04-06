@@ -31,10 +31,10 @@ output.kafka:
   #bulk_max_size: 4096
   #max_message_bytes: 100000000 # 100 mb
 
-setup.dashboards.enabled: true
-setup.dashboards.retry.enabled: true
-setup.dashboards.retry.maximum: 0
-setup.kibana:
-  host: "kibana:5601"
+#setup.dashboards.enabled: true
+#setup.dashboards.retry.enabled: true
+#setup.dashboards.retry.maximum: 0
+#setup.kibana:
+#  host: "kibana:5601"
 
 #setup.dashboards.index: packetbeat-index

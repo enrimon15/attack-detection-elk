@@ -56,8 +56,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  
     depends_on:
-      - elasticsearch
-      - kibana
+      - opensearch
+      - opendashboard
       - kafka
       - zookeeper
     networks:
@@ -151,9 +151,9 @@ services:
     networks:
       - dmz-network    
 
-  # start elk services
+  # start logstash service
   logstash:
-    image: docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION}
+    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:${LOGSTASH_VERSION}
     container_name: logstash
     restart: unless-stopped
     command: logstash -f /etc/logstash/conf.d/logstash.conf
@@ -167,42 +167,46 @@ services:
     networks:
       - dmz-network
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
-    container_name: elasticsearch
+  # start opensearch service
+  opensearch:
+    image: opensearchproject/opensearch:1.2.0
+    container_name: opensearch
     restart: unless-stopped
     environment:
-      - node.name=elasticsearch
       - discovery.type=single-node
       - cluster.name=docker-cluster
+      - node.name=opensearch
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - discovery.seed_hosts=opensearch
+      - "DISABLE_SECURITY_PLUGIN=true"
     ulimits:
       memlock:
         soft: -1
-        hard: -1
+        hard: -1 
     volumes:
-      - esdata-vol:/usr/share/elasticsearch/data
+      - osdata-vol:/usr/share/opensearch/data
     ports:
-      - "9300:9300"
       - "9200:9200"
-    depends_on:
-      - logstash
+      #- "9300:9300"
     networks:
       - dmz-network
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
-    container_name: kibana
-    restart: unless-stopped
+  # start opendashboard service
+  opendashboard:
+    image: opensearchproject/opensearch-dashboards:1.2.0
+    container_name: opendashboard
     environment:
-      ELASTICSEARCH_URL: "http://elasticsearch:9300"
+      - OPENSEARCH_HOSTS=http://opensearch:9200
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
     ports:
       - "5601:5601"
+    expose:
+      - "5601"  
     depends_on:
-      - elasticsearch
+      - opensearch  
     networks:
-      - dmz-network 
+      - dmz-network    
 
 
   # To add java container   
@@ -210,7 +214,7 @@ services:
 volumes:
   #mongo-db_data-vol:
   #  driver: local
-  esdata-vol:
+  osdata-vol:
     driver: local
   postgres-data:
       driver: local   
