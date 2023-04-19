@@ -41,6 +41,9 @@ COPY config/packetbeat.yml /etc/packetbeat/packetbeat.yml
 COPY config/auditbeat.yml /etc/auditbeat/auditbeat.yml
 COPY config/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 
+RUN chmod go-w /etc/packetbeat/packetbeat.yml
+RUN chmod go-w /etc/auditbeat/auditbeat.yml
+
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 
