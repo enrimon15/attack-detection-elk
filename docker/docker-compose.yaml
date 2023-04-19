@@ -195,6 +195,7 @@ services:
   # start opendashboard service
   opendashboard:
     image: opensearchproject/opensearch-dashboards:1.2.0
+    restart: unless-stopped
     container_name: opendashboard
     environment:
       - OPENSEARCH_HOSTS=http://opensearch:9200
@@ -206,7 +207,7 @@ services:
     depends_on:
       - opensearch  
     networks:
-      - dmz-network    
+      - dmz-network 
 
 
   # To add java container   
