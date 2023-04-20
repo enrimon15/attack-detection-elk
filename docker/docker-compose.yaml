@@ -42,6 +42,9 @@ services:
       context: .
       args:
         UBUNTU_VERSION: ${UBUNTU_VERSION}
+        BEAT_VERSION: ${BEAT_VERSION}
+        TOMCAT_VERSION: ${TOMCAT_VERSION}
+        TOMCAT_MACRO_VERSION: ${TOMCAT_MACRO_VERSION}
       dockerfile: Dockerfile-target
     container_name: vulnerable-mts
     restart: unless-stopped
@@ -169,7 +172,7 @@ services:
 
   # start opensearch service
   opensearch:
-    image: opensearchproject/opensearch:1.2.0
+    image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
     container_name: opensearch
     restart: unless-stopped
     environment:
@@ -194,7 +197,7 @@ services:
 
   # start opendashboard service
   opendashboard:
-    image: opensearchproject/opensearch-dashboards:1.2.0
+    image: opensearchproject/opensearch-dashboards:${OPENSEARCH_VERSION}
     restart: unless-stopped
     container_name: opendashboard
     environment:

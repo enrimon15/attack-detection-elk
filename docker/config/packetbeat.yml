@@ -10,8 +10,6 @@ packetbeat.protocols:
 - type: icmp
   enabled: true
 
-#packetbeat.metrics.enabled: true
-
 packetbeat.modules:
 - module: system
   sysctl.module: net
@@ -21,20 +19,4 @@ packetbeat.modules:
 output.kafka:
   hosts: ["kafka:29092"]
   topic: "packetbeat-topic"
-  #version: 2.0.0
-
-  #partition.round_robin:
-  #  reachable_only: false
-
   max_retries: 5
-
-  #bulk_max_size: 4096
-  #max_message_bytes: 100000000 # 100 mb
-
-#setup.dashboards.enabled: true
-#setup.dashboards.retry.enabled: true
-#setup.dashboards.retry.maximum: 0
-#setup.kibana:
-#  host: "kibana:5601"
-
-#setup.dashboards.index: packetbeat-index
