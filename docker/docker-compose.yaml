@@ -49,11 +49,11 @@ services:
     container_name: vulnerable-mts
     restart: unless-stopped
     #privileged: true
-    cap_add:
-      - AUDIT_CONTROL
-      - AUDIT_READ
-    user: root
-    pid: host
+    #cap_add:
+    #  - AUDIT_CONTROL
+    #  - AUDIT_READ
+    # user: root
+    # pid: host
     ports:
       - "8080:8080"
     volumes:
