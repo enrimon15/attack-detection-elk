@@ -60,4 +60,6 @@ If script `./start.sh` returns an error try to increase sleep seconds inside the
 
 For details on attack detection, see [here](https://github.com/enrimon15/attack-detection-elk/blob/main/attack-detection.md)
 
+---
 
+**Opensearch version** [here]([https://github.com/enrimon15/attack-detection-elk/blob/main/attack-detection.md](https://github.com/enrimon15/attack-detection-elk/tree/opensearch)https://github.com/enrimon15/attack-detection-elk/tree/opensearch)
