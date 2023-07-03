@@ -11,24 +11,29 @@ RUN apt-get update && \
         libcap2-bin \
         && rm -rf /var/lib/apt/lists/*
 
+ARG BEAT_VERSION
+
 # packetbeat
-RUN curl -L -O https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.14.0-amd64.deb && \
-    dpkg -i packetbeat-7.14.0-amd64.deb && \
-    rm -f packetbeat-7.14.0-amd64.deb
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-${BEAT_VERSION}-amd64.deb && \
+    dpkg -i packetbeat-${BEAT_VERSION}-amd64.deb && \
+    rm -f packetbeat-${BEAT_VERSION}-amd64.deb
 
 # auditbeat
-RUN curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.14.0-amd64.deb && \
-    dpkg -i auditbeat-7.14.0-amd64.deb && \
-    rm -f auditbeat-7.14.0-amd64.deb
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-${BEAT_VERSION}-amd64.deb && \
+    dpkg -i auditbeat-${BEAT_VERSION}-amd64.deb && \
+    rm -f auditbeat-${BEAT_VERSION}-amd64.deb
 
 # Add capabilities for auditbeat
 RUN setcap cap_audit_control,cap_audit_read+ep /usr/share/auditbeat/bin/auditbeat
 
+ARG TOMCAT_MACRO_VERSION
+ARG TOMCAT_VERSION
+
 # Tomcat 6
-RUN curl -L -O https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apache-tomcat-6.0.53.tar.gz && \
-    tar xvzf apache-tomcat-6.0.53.tar.gz && \
-    rm -f apache-tomcat-6.0.53.tar.gz && \
-    mv apache-tomcat-6.0.53 /usr/local/tomcat && \
+RUN curl -L -O https://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MACRO_VERSION}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    tar xvzf apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    rm -f apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    mv apache-tomcat-${TOMCAT_VERSION} /usr/local/tomcat && \
     chmod +x /usr/local/tomcat/bin/*
 
 # ssh

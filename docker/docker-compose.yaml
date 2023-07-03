@@ -42,6 +42,9 @@ services:
       context: .
       args:
         UBUNTU_VERSION: ${UBUNTU_VERSION}
+        BEAT_VERSION: ${BEAT_VERSION}
+        TOMCAT_VERSION: ${TOMCAT_VERSION}
+        TOMCAT_MACRO_VERSION: ${TOMCAT_MACRO_VERSION}
       dockerfile: Dockerfile-target
     container_name: vulnerable-mts
     restart: unless-stopped
@@ -153,7 +156,7 @@ services:
 
   # start elk services
   logstash:
-    image: docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION}
+    image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
     container_name: logstash
     restart: unless-stopped
     command: logstash -f /etc/logstash/conf.d/logstash.conf
@@ -168,7 +171,7 @@ services:
       - dmz-network
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
     container_name: elasticsearch
     restart: unless-stopped
     environment:
@@ -192,7 +195,7 @@ services:
       - dmz-network
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
+    image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
     container_name: kibana
     restart: unless-stopped
     environment:
