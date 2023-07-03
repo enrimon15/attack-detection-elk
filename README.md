@@ -1,5 +1,4 @@
-# ELK-Apache Beat Data Pipeline
-## Network Monitoring and Attack Detection
+# ELK-Apache Beat Data Pipeline - Network Monitoring and Attack Detection
 
 Project to monitor a network and detect cyber attacks that can compromise the system, using sniffing tools and data processing pipeline. To implement the process are used tools for system monitoring (Apache Beat Stack) and data analysis tools (ELK Stack).
 \
