@@ -1,10 +1,10 @@
-# ELK-Apache Beat Data Pipeline - Network Monitoring and Attack Detection
+# ELK-Apache Beat Data Pipeline - Network Monitoring and Attack Detection (Opensearch Version)
 
 Project to monitor a network and detect cyber attacks that can compromise the system, using sniffing tools and data processing pipeline. To implement the process are used tools for system monitoring (Apache Beat Stack) and data analysis tools (ELK Stack).
 \
 <br/>
 
-Specifically (for testing purposes), a simulated cyber attack on a Tomcat server is performed using the **Metasploit framework**. The attack, as well as network activities and changes to system files, are detected through the network packet analyzer **Packetbeat** and the file-monitor **Auditbeat**, which monitor network traffic and system file integrity and regularly send the results to the message broker **Kafka**. These monitoring messages are then collected and consumed by **Logstash**, then transformed, and then are sent to the data search and analysis engine **Elasticsearch**. Using predefined rules and queries on Elasticsearch, network data and file-integrity data are analyzed, and possible anomalous activities are detected. Finally, through the visualization tool **Kibana**, it is possible to filter this data and display it on a dashboard with various alert charts that inform us of possible ongoing attacks.
+Specifically (for testing purposes), a simulated cyber attack on a Tomcat server is performed using the **Metasploit framework**. The attack, as well as network activities and changes to system files, are detected through the network packet analyzer **Packetbeat** and the file-monitor **Auditbeat**, which monitor network traffic and system file integrity and regularly send the results to the message broker **Kafka**. These monitoring messages are then collected and consumed by **Logstash**, then transformed, and then are sent to the data search and analysis engine **Opensearch**. Using predefined rules and queries on Opensearch, network data and file-integrity data are analyzed, and possible anomalous activities are detected. Finally, through the visualization tool **Opensearch Dashboard**, it is possible to filter this data and display it on a dashboard with various alert charts that inform us of possible ongoing attacks.
 \
 There is also a **Java** application that, when launched, consumes the messages from Kafka (network data and file integrity data) and stores them to a **MongoDB** database for additional data persistence.
 
@@ -20,14 +20,14 @@ The entire architecture is built using a docker-compose file. The services invol
     - ***Auditbeat***: monitors system file integrity and sends the data to the Kafka message broker.
 - ***Kafka***: receives data from Packetbeat and Auditbeat sources.
 - ***Kafka UI***: a user interface for Kafka (useful for testing and debugging).
-- ***Logstash***: consumes messages from Kafka, transforms them, and sends them to Elasticsearch.
-- ***Elasticsearch***: stores and analyzes the data received from Logstash.
-- ***Kibana***: allows visualization of the data stored in Elasticsearch including the evidence collected by Packetbeat and Auditbeat, and filtering possible attacks.
+- ***Logstash***: consumes messages from Kafka, transforms them, and sends them to Opensearch.
+- ***Opensearch***: stores and analyzes the data received from Logstash.
+- ***Opensearch Dashboard***: allows visualization of the data stored in Opensearch including the evidence collected by Packetbeat and Auditbeat, and filtering possible attacks.
 - ***MongoDB***: database to store the data collected by Packetbeat and Auditbeat.
 - ***Mongo Express***: a user interface to manage MongoDB and execute queries.
 - ***Java application***: consumes data from Kafka and stores it to MongoDB.
 
-![](<https://github.com/enrimon15/attack-detection-elk/blob/main/images/architecture.png>)
+![](<https://github.com/enrimon15/attack-detection-elk/blob/main/images/architecture-opensearch.png>)
 
 ---
 

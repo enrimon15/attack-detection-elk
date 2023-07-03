@@ -1,6 +1,6 @@
 # Attack Detection
 
-Thanks to Elasticsearch and Kibana, you can query the data collected by Packetbeat and Auditbeat to monitor attacks.
+Thanks to Opensearch and Opensearch Dashboard, you can query the data collected by Packetbeat and Auditbeat to monitor attacks.
 The following queries can be run through the user interface offered by Kibana, or you can consult the related dashboard with the charts created on the basis of the same queries, to view the evidence in a more readable way.
 
 

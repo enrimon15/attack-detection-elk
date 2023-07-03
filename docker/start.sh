@@ -8,7 +8,7 @@ sleep 20
 # avvio packetbeat nel container vulnerabile ubuntu
 docker exec vulnerable-mts service packetbeat start -d -e --strict.perms=false
 docker exec vulnerable-mts service auditbeat start -d -e --strict.perms=false
-# to check if beat is running you can execute: service packetbeat status or service auditbeat status
+# to check if beat is running you can execute: docker exec vulnerable-mts service packetbeat status or service auditbeat status
 sleep 4
 
 # import dashboards
