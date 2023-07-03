@@ -1,8 +1,7 @@
-# ELK-Apache Beat Data Pipeline - Network Monitoring and Attack Detection
+# ELK-Apache Beat Data Pipeline
+## Network Monitoring and Attack Detection
 
-Project to monitor a network and detect cyber attacks that can compromise the system, using sniffing tools and data processing pipeline.
-\
-To implement the process are used tools for system monitoring (Apache Beat Stack) and data analysis tools (ELK Stack).
+Project to monitor a network and detect cyber attacks that can compromise the system, using sniffing tools and data processing pipeline. To implement the process are used tools for system monitoring (Apache Beat Stack) and data analysis tools (ELK Stack).
 \
 <br/>
 
@@ -50,7 +49,7 @@ Finally, through the **sshkey_persistence** module, an ssh key is added to the r
 
 ## Guide
 
-Per avviare il progetto:
+To run:
 - Install Docker. See [here](https://docs.docker.com/get-docker/).
 - Go inside docker folder: `cd docker`
 - Run the sh script `./start.sh` to set up the infrastucture.
