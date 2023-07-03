@@ -28,5 +28,9 @@ The following queries can be run through the user interface offered by Kibana, o
     agent.type: "auditbeat" AND file.path LIKE '%.authorized_keys%' AND event.action LIKE '%updated%'
     ```
 
-
+\
+<br>
 ![](<https://github.com/enrimon15/attack-detection-elk/blob/main/images/dashboard.png>)
+\
+<br>
+![](<https://github.com/enrimon15/attack-detection-elk/blob/main/images/query.png>)
