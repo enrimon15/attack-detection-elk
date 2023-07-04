@@ -62,4 +62,4 @@ For details on attack detection, see [here](https://github.com/enrimon15/attack-
 
 ---
 
-**Opensearch version** [here](https://github.com/enrimon15/attack-detection-elk/blob/main/attack-detection.md](https://github.com/enrimon15/attack-detection-elk/tree/opensearch)https://github.com/enrimon15/attack-detection-elk/tree/opensearch)
+**Opensearch version** [here](https://github.com/enrimon15/attack-detection-elk/tree/opensearch)
