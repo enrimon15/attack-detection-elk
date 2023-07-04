@@ -40,7 +40,7 @@ Finally, through the **sshkey_persistence** module, an ssh key is added to the r
 
 --------
 
-## Kibana Dashboard
+## Opensearch Dashboard
 
 ![](<https://github.com/enrimon15/attack-detection-elk/blob/main/images/dashboard.png>)
 
